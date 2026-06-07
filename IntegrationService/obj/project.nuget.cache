@@ -1,12 +1,29 @@
 {
   "version": 2,
-  "dgSpecHash": "tpGK1j8uFPk=",
+  "dgSpecHash": "Tj3gkpo+UR4=",
   "success": true,
   "projectFilePath": "C:\\health-monitoring-integration\\IntegrationService\\IntegrationService.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\nikit\\.nuget\\packages\\serilog\\4.2.0\\serilog.4.2.0.nupkg.sha512",
-    "C:\\Users\\nikit\\.nuget\\packages\\serilog.sinks.console\\6.0.0\\serilog.sinks.console.6.0.0.nupkg.sha512",
-    "C:\\Users\\nikit\\.nuget\\packages\\serilog.sinks.file\\6.0.0\\serilog.sinks.file.6.0.0.nupkg.sha512"
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\microsoft.extensions.dependencymodel\\9.0.0\\microsoft.extensions.dependencymodel.9.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\microsoft.extensions.http.polly\\10.0.0\\microsoft.extensions.http.polly.10.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\microsoft.openapi\\1.6.22\\microsoft.openapi.1.6.22.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\polly\\8.5.0\\polly.8.5.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\polly.core\\8.5.0\\polly.core.8.5.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\polly.extensions.http\\3.0.0\\polly.extensions.http.3.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog\\4.2.0\\serilog.4.2.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.aspnetcore\\9.0.0\\serilog.aspnetcore.9.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.extensions.hosting\\9.0.0\\serilog.extensions.hosting.9.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.extensions.logging\\9.0.0\\serilog.extensions.logging.9.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.formatting.compact\\3.0.0\\serilog.formatting.compact.3.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.settings.configuration\\9.0.0\\serilog.settings.configuration.9.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.sinks.console\\6.0.0\\serilog.sinks.console.6.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.sinks.debug\\3.0.0\\serilog.sinks.debug.3.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\serilog.sinks.file\\6.0.0\\serilog.sinks.file.6.0.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\swashbuckle.aspnetcore\\7.2.0\\swashbuckle.aspnetcore.7.2.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\swashbuckle.aspnetcore.swagger\\7.2.0\\swashbuckle.aspnetcore.swagger.7.2.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\swashbuckle.aspnetcore.swaggergen\\7.2.0\\swashbuckle.aspnetcore.swaggergen.7.2.0.nupkg.sha512",
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget\\swashbuckle.aspnetcore.swaggerui\\7.2.0\\swashbuckle.aspnetcore.swaggerui.7.2.0.nupkg.sha512"
   ],
   "logs": []
 }

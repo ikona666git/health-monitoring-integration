@@ -6,26 +6,19 @@ namespace E2ETests;
 
 public class E2ETests
 {
-    private readonly HttpClient _httpClient;
-
-    public E2ETests()
-    {
-        _httpClient = new HttpClient();
-    }
+    private readonly HttpClient _httpClient = new();
 
     [Fact]
     public async Task FullE2EScenario_UserMeasurement_AlertTriggered()
     {
-        // 1. Проверка здоровья модулей
-        var ingestionHealth = await _httpClient.GetAsync("http://localhost:5001/health");
-        var rulesHealth = await _httpClient.GetAsync("http://localhost:5002/health");
-        var alertingHealth = await _httpClient.GetAsync("http://localhost:3000/health");
+        var ingestionHealth = await _httpClient.GetAsync($"{ServiceUrls.Ingestion}/health");
+        var rulesHealth = await _httpClient.GetAsync($"{ServiceUrls.Rules}/health");
+        var alertingHealth = await _httpClient.GetAsync($"{ServiceUrls.Alerting}/health");
 
         Assert.True(ingestionHealth.IsSuccessStatusCode);
         Assert.True(rulesHealth.IsSuccessStatusCode);
         Assert.True(alertingHealth.IsSuccessStatusCode);
 
-        // 2. Отправка измерения
         var measurement = new
         {
             user_id = "e2e_user",
@@ -36,22 +29,23 @@ public class E2ETests
 
         var json = JsonSerializer.Serialize(measurement);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var ingestionResponse = await _httpClient.PostAsync("http://localhost:5001/measurements", content);
+
+        var ingestionResponse = await _httpClient.PostAsync($"{ServiceUrls.Ingestion}/measurements", content);
+        var ingestionResult = await ingestionResponse.Content.ReadAsStringAsync();
+
         Assert.True(ingestionResponse.IsSuccessStatusCode);
+        Assert.Contains("accepted", ingestionResult);
+        Assert.Contains("rules_check", ingestionResult);
+        Assert.Contains("alert_triggered", ingestionResult);
+        Assert.Contains("alert_id", ingestionResult);
 
-        // 3. Проверка норм
-        var rulesResponse = await _httpClient.PostAsync("http://localhost:5002/check", content);
-        var rulesResult = await rulesResponse.Content.ReadAsStringAsync();
-        Assert.Contains("is_out_of_range", rulesResult);
-
-        // 4. Проверка уведомления
-        var alertResponse = await _httpClient.PostAsync("http://localhost:3000/alert", content);
-        Assert.True(alertResponse.IsSuccessStatusCode);
-
-        // 5. Проверка истории
-        var historyResponse = await _httpClient.GetAsync("http://localhost:5002/history");
+        var historyResponse = await _httpClient.GetAsync($"{ServiceUrls.Rules}/history");
         var history = await historyResponse.Content.ReadAsStringAsync();
         Assert.Contains("e2e_user", history);
+
+        var alertsResponse = await _httpClient.GetAsync($"{ServiceUrls.Alerting}/alerts");
+        var alerts = await alertsResponse.Content.ReadAsStringAsync();
+        Assert.Contains("e2e_user", alerts);
     }
 
     [Fact]
@@ -68,9 +62,15 @@ public class E2ETests
         var json = JsonSerializer.Serialize(measurement);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var rulesResponse = await _httpClient.PostAsync("http://localhost:5002/check", content);
-        var rulesResult = await rulesResponse.Content.ReadAsStringAsync();
+        var ingestionResponse = await _httpClient.PostAsync($"{ServiceUrls.Ingestion}/measurements", content);
+        var result = await ingestionResponse.Content.ReadAsStringAsync();
 
-        Assert.Contains("is_out_of_range", rulesResult);
+        Assert.True(ingestionResponse.IsSuccessStatusCode);
+        Assert.Contains("accepted", result);
+
+        using var doc = JsonDocument.Parse(result);
+        var rulesCheck = doc.RootElement.GetProperty("rules_check");
+        Assert.False(rulesCheck.GetProperty("is_out_of_range").GetBoolean());
+        Assert.False(rulesCheck.GetProperty("alert_triggered").GetBoolean());
     }
 }

@@ -2,301 +2,269 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>åÆ≠®‚Æ‡®≠£ ß§Æ‡Æ¢ÏÔ</title>
+    <title>Health Monitoring</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .status-card { border-radius: 15px; padding: 20px; margin-bottom: 20px; }
         .status-ok { background-color: #d4edda; border-left: 5px solid #28a745; }
         .status-warning { background-color: #fff3cd; border-left: 5px solid #ffc107; }
         .status-critical { background-color: #f8d7da; border-left: 5px solid #dc3545; }
-        .spinner { display: none; width: 20px; height: 20px; margin-left: 10px; }
     </style>
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center mb-4">?? åÆ≠®‚Æ‡®≠£ ß§Æ‡Æ¢ÏÔ</h1>
-        
-        <!-- ë‚†‚„· ¨Æ§„´•© -->
+        <h1 class="text-center">–°–∏—Å—Ç–µ–º–∞ –º–æ–Ω–∏—Ç–æ—Ä–∏–Ω–≥–∞ –∑–¥–æ—Ä–æ–≤—å—è</h1>
+        <p class="text-center text-muted">–î–∞—Ç—á–∏–∫–∏ ‚Üí –ü–æ–∫–∞–∑–∞—Ç–µ–ª–∏ ‚Üí –ù–æ—Ä–º—ã ‚Üí –£–≤–µ–¥–æ–º–ª–µ–Ω–∏—è ‚Üí –ò—Å—Ç–æ—Ä–∏—è</p>
+
         <div class="row mb-4">
             <div class="col-md-4">
-                <div class="card" id="ingestion-status">
+                <div class="card">
                     <div class="card-body text-center">
-                        <h5>?? Ingestion</h5>
-                        <span class="badge bg-secondary">è‡Æ¢•‡™†...</span>
+                        <h5>Ingestion</h5>
+                        <span class="badge bg-secondary" id="ingestion-status">Checking...</span>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card" id="rules-status">
+                <div class="card">
                     <div class="card-body text-center">
-                        <h5>?? Rules Engine</h5>
-                        <span class="badge bg-secondary">è‡Æ¢•‡™†...</span>
+                        <h5>Rules Engine</h5>
+                        <span class="badge bg-secondary" id="rules-status">Checking...</span>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card" id="alerting-status">
+                <div class="card">
                     <div class="card-body text-center">
-                        <h5>?? Alerting</h5>
-                        <span class="badge bg-secondary">è‡Æ¢•‡™†...</span>
+                        <h5>Alerting</h5>
+                        <span class="badge bg-secondary" id="alerting-status">Checking...</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- îÆ‡¨† ¢¢Æ§† ØÆ™†ß†‚•´Ô -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Swagger API</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <a href="http://localhost:5101/docs" target="_blank" class="btn btn-outline-primary w-100">Ingestion</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="http://localhost:5102/docs" target="_blank" class="btn btn-outline-primary w-100">Rules Engine</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="http://localhost:3100/docs" target="_blank" class="btn btn-outline-primary w-100">Alerting</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="http://localhost:5200/swagger" target="_blank" class="btn btn-outline-success w-100">Integration (.NET)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">? ÑÆ°†¢®‚Ï ≠Æ¢Î© ØÆ™†ß†‚•´Ï</h5>
+                <h5>–î–æ–±–∞–≤–∏—Ç—å –∏–∑–º–µ—Ä–µ–Ω–∏–µ</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
-                        <label class="form-label">ID ØÆ´ÏßÆ¢†‚•´Ô</label>
+                        <label>User ID</label>
                         <input type="text" class="form-control" id="userId" value="user123">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">í®Ø ØÆ™†ß†‚•´Ô</label>
+                        <label>–¢–∏–ø –ø–æ–∫–∞–∑–∞—Ç–µ–ª—è</label>
                         <select class="form-select" id="metricType">
-                            <option value="heart_rate">è„´Ï·</option>
-                            <option value="blood_pressure">Ñ†¢´•≠®•</option>
-                            <option value="glucose">É´Ó™Æß†</option>
-                            <option value="steps">ò†£®</option>
-                            <option value="sleep_hours">ëÆ≠ (Á†·Î)</option>
+                            <option value="heart_rate">–ü—É–ª—å—Å (heart_rate)</option>
+                            <option value="glucose">–ì–ª—é–∫–æ–∑–∞ (glucose)</option>
+                            <option value="steps">–®–∞–≥–∏ (steps)</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">á≠†Á•≠®•</label>
+                        <label>–ó–Ω–∞—á–µ–Ω–∏–µ</label>
                         <input type="number" class="form-control" id="value" value="135">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <button class="btn btn-primary w-100" onclick="sendMeasurement()">
-                            é‚Ø‡†¢®‚Ï
-                        </button>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="spinner-border spinner text-primary" id="loadingSpinner"></div>
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary w-100" onclick="sendMeasurement()">–û—Ç–ø—Ä–∞–≤–∏—Ç—å</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ê•ß„´Ï‚†‚ ®≠‚•£‡†Ê®® -->
-        <div class="card mb-4" id="resultCard" style="display: none;">
+        <div class="card" id="resultCard" style="display:none;">
             <div class="card-header">
-                <h5 class="mb-0">?? ê•ß„´Ï‚†‚ ®≠‚•£‡†Ê®®</h5>
+                <h5>–†–µ–∑—É–ª—å—Ç–∞—Ç –∏–Ω—Ç–µ–≥—Ä–∞—Ü–∏–∏</h5>
             </div>
-            <div class="card-body" id="resultBody">
-            </div>
+            <div class="card-body" id="resultBody"></div>
         </div>
 
-        <!-- à·‚Æ‡®Ô ØÆ·´•§≠®Â ®ß¨•‡•≠®© -->
-        <div class="card">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">?? à·‚Æ‡®Ô ØÆ™†ß†‚•´•©</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped" id="historyTable">
-                        <thead>
-                            <tr><th>Ç‡•¨Ô</th><th>èÆ´ÏßÆ¢†‚•´Ï</th><th>èÆ™†ß†‚•´Ï</th><th>á≠†Á•≠®•</th><th>çÆ‡¨†</th><th>ë‚†‚„·</th></tr>
-                        </thead>
-                        <tbody id="historyBody">
-                            <tr><td colspan="6" class="text-center">ç•‚ §†≠≠ÎÂ</td></tr>
-                        </tbody>
-                    </table>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5>–ò—Å—Ç–æ—Ä–∏—è –ø—Ä–æ–≤–µ—Ä–æ–∫ (Rules)</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr><th>User</th><th>Metric</th><th>Value</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="historyBody">
+                                <tr><td colspan="4" class="text-center">–ù–µ—Ç –¥–∞–Ω–Ω—ã—Ö</td></tr>
+                            </tbody>
+                        </table>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadHistory()">–û–±–Ω–æ–≤–∏—Ç—å</button>
+                    </div>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary" onclick="loadHistory()">é°≠Æ¢®‚Ï ®·‚Æ‡®Ó</button>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5>–£–≤–µ–¥–æ–º–ª–µ–Ω–∏—è (Alerts)</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr><th>Time</th><th>User</th><th>Metric</th><th>Message</th></tr>
+                            </thead>
+                            <tbody id="alertsBody">
+                                <tr><td colspan="4" class="text-center">–ù–µ—Ç —É–≤–µ–¥–æ–º–ª–µ–Ω–∏–π</td></tr>
+                            </tbody>
+                        </table>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadAlerts()">–û–±–Ω–æ–≤–∏—Ç—å</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Å†ßÆ¢Î• URL ¨Æ§„´•©
-        const INGESTION_URL = 'http://localhost:5001';
-        const RULES_URL = 'http://localhost:5002';
-        const ALERTING_URL = 'http://localhost:3000';
+        const API = {
+            ingestion: "http://localhost:5101",
+            rules: "http://localhost:5102",
+            alerting: "http://localhost:3100"
+        };
 
-        // è‡Æ¢•‡™† ·‚†‚„·† ¨Æ§„´•©
-        async function checkModuleStatus() {
-            const modules = [
-                { name: 'ingestion', url: `${INGESTION_URL}/health`, element: 'ingestion-status' },
-                { name: 'rules', url: `${RULES_URL}/health`, element: 'rules-status' },
-                { name: 'alerting', url: `${ALERTING_URL}/health`, element: 'alerting-status' }
+        async function checkStatus() {
+            const services = [
+                { id: "ingestion-status", url: API.ingestion + "/health" },
+                { id: "rules-status", url: API.rules + "/health" },
+                { id: "alerting-status", url: API.alerting + "/health" }
             ];
-
-            for (const mod of modules) {
+            for (const svc of services) {
+                const el = document.getElementById(svc.id);
                 try {
-                    const response = await fetch(mod.url);
-                    if (response.ok) {
-                        document.querySelector(`#${mod.element} .badge`).className = 'badge bg-success';
-                        document.querySelector(`#${mod.element} .badge`).textContent = '? ê†°Æ‚†•‚';
-                    } else {
-                        throw new Error('Not OK');
-                    }
-                } catch (error) {
-                    document.querySelector(`#${mod.element} .badge`).className = 'badge bg-danger';
-                    document.querySelector(`#${mod.element} .badge`).textContent = '? ç•§Æ·‚„Ø•≠';
+                    const r = await fetch(svc.url);
+                    el.innerHTML = r.ok ? "Online" : "Offline";
+                    el.className = r.ok ? "badge bg-success" : "badge bg-danger";
+                } catch (e) {
+                    el.innerHTML = "Offline";
+                    el.className = "badge bg-danger";
                 }
             }
         }
 
-        // é‚Ø‡†¢™† ®ß¨•‡•≠®Ô
         async function sendMeasurement() {
-            const userId = document.getElementById('userId').value;
-            const metricType = document.getElementById('metricType').value;
-            const value = parseFloat(document.getElementById('value').value);
-            
-            const measurement = {
-                user_id: userId,
-                metric_type: metricType,
-                value: value,
-                timestamp: new Date().toISOString(),
-                source: 'web_ui'
+            const data = {
+                user_id: document.getElementById("userId").value,
+                metric_type: document.getElementById("metricType").value,
+                value: parseFloat(document.getElementById("value").value),
+                timestamp: new Date().toISOString()
             };
 
-            // èÆ™†ßÎ¢†•¨ ·Ø®≠≠•‡
-            document.getElementById('loadingSpinner').style.display = 'inline-block';
-            document.getElementById('resultCard').style.display = 'none';
+            const resultCard = document.getElementById("resultCard");
+            const resultBody = document.getElementById("resultBody");
+            resultCard.style.display = "block";
+            resultBody.innerHTML = "<p>–û—Ç–ø—Ä–∞–≤–∫–∞...</p>";
 
             try {
-                // òÄÉ 1: é‚Ø‡†¢™† ¢ Ingestion
-                const ingestionResponse = await fetch(`${INGESTION_URL}/measurements`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(measurement)
+                const response = await fetch(API.ingestion + "/measurements", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
                 });
-                const ingestionResult = await ingestionResponse.json();
+                const result = await response.json();
 
-                // òÄÉ 2: è‡Æ¢•‡™† ≠Æ‡¨ ¢ Rules Engine
-                const rulesResponse = await fetch(`${RULES_URL}/check`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(measurement)
-                });
-                const rulesResult = await rulesResponse.json();
+                let html = `<div class="alert alert-${result.status === 'accepted' ? 'success' : 'warning'}">
+                    –°—Ç–∞—Ç—É—Å: <strong>${result.status}</strong></div>`;
 
-                // òÄÉ 3: ì¢•§Æ¨´•≠®• (•·´® Æ‚™´Æ≠•≠®•)
-                let alertResult = null;
-                if (rulesResult.is_out_of_range) {
-                    const alertResponse = await fetch(`${ALERTING_URL}/alert`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(rulesResult)
-                    });
-                    alertResult = await alertResponse.json();
+                if (result.rules_check) {
+                    const rc = result.rules_check;
+                    const statusClass = rc.is_out_of_range ? "status-critical" : "status-ok";
+                    html += `<div class="p-3 mb-2 ${statusClass}">
+                        <strong>–ü—Ä–æ–≤–µ—Ä–∫–∞ –Ω–æ—Ä–º:</strong> ${rc.metric_type} = ${rc.value}
+                        (–Ω–æ—Ä–º–∞ ${rc.min_normal}‚Äì${rc.max_normal})
+                        ‚Äî ${rc.is_out_of_range ? "–í–ù–ï –ù–û–†–ú–´ (" + rc.deviation_percent + "%)" : "–í –Ω–æ—Ä–º–µ"}
+                    </div>`;
                 }
 
-                // é‚Æ°‡†¶•≠®• ‡•ß„´Ï‚†‚†
-                displayResult(measurement, rulesResult, alertResult);
-                
-                // ÑÆ°†¢´Ô•¨ ¢ ®·‚Æ‡®Ó
-                addToHistory(measurement, rulesResult);
-                
-            } catch (error) {
-                displayError(error.message);
-            } finally {
-                document.getElementById('loadingSpinner').style.display = 'none';
+                if (result.alert) {
+                    html += `<div class="p-3 mb-2 status-warning">
+                        <strong>–£–≤–µ–¥–æ–º–ª–µ–Ω–∏–µ –æ—Ç–ø—Ä–∞–≤–ª–µ–Ω–æ</strong> (alert_id: ${result.alert.alert_id})
+                    </div>`;
+                }
+
+                html += `<pre class="mt-2">${JSON.stringify(result, null, 2)}</pre>`;
+                resultBody.innerHTML = html;
+
+                loadHistory();
+                loadAlerts();
+            } catch (e) {
+                resultBody.innerHTML = `<div class="alert alert-danger">–û—à–∏–±–∫–∞: ${e.message}</div>`;
             }
-        }
-
-        // é‚Æ°‡†¶•≠®• ‡•ß„´Ï‚†‚†
-        function displayResult(measurement, rulesResult, alertResult) {
-            const resultCard = document.getElementById('resultCard');
-            const resultBody = document.getElementById('resultBody');
-            
-            const isOutOfRange = rulesResult.is_out_of_range;
-            const statusClass = isOutOfRange ? 'status-critical' : 'status-ok';
-            const statusText = isOutOfRange ? '?? ÇçÖ çéêåõ' : '? Ç çéêåÖ';
-            
-            let alertHtml = '';
-            if (alertResult) {
-                alertHtml = `<div class="alert alert-warning mt-3">
-                    ?? <strong>ì¢•§Æ¨´•≠®• Æ‚Ø‡†¢´•≠Æ!</strong> (Alert ID: ${alertResult.alert_id || '?'})
-                </div>`;
-            }
-            
-            resultBody.innerHTML = `
-                <div class="status-card ${statusClass}">
-                    <h4>${statusText}</h4>
-                    <p><strong>èÆ´ÏßÆ¢†‚•´Ï:</strong> ${measurement.user_id}</p>
-                    <p><strong>èÆ™†ß†‚•´Ï:</strong> ${measurement.metric_type} = ${measurement.value}</p>
-                    <p><strong>çÆ‡¨†:</strong> ${rulesResult.min_normal} - ${rulesResult.max_normal}</p>
-                    ${rulesResult.deviation_percent ? `<p><strong>é‚™´Æ≠•≠®•:</strong> ${rulesResult.deviation_percent}%</p>` : ''}
-                    ${alertHtml}
-                </div>
-            `;
-            
-            resultCard.style.display = 'block';
-        }
-
-        function displayError(error) {
-            const resultCard = document.getElementById('resultCard');
-            const resultBody = document.getElementById('resultBody');
-            resultBody.innerHTML = `<div class="alert alert-danger">? éË®°™†: ${error}</div>`;
-            resultCard.style.display = 'block';
-        }
-
-        // à·‚Æ‡®Ô (´Æ™†´Ï≠†Ô)
-        let history = [];
-        function addToHistory(measurement, rulesResult) {
-            history.unshift({
-                timestamp: new Date().toLocaleTimeString(),
-                user_id: measurement.user_id,
-                metric_type: measurement.metric_type,
-                value: measurement.value,
-                norm: `${rulesResult.min_normal}-${rulesResult.max_normal}`,
-                status: rulesResult.is_out_of_range ? '?? é‚™´Æ≠•≠®•' : '?? çÆ‡¨†'
-            });
-            if (history.length > 10) history.pop();
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const tbody = document.getElementById('historyBody');
-            if (history.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">ç•‚ §†≠≠ÎÂ</td></tr>';
-                return;
-            }
-            tbody.innerHTML = history.map(h => `
-                <tr>
-                    <td>${h.timestamp}</td>
-                    <td>${h.user_id}</td>
-                    <td>${h.metric_type}</td>
-                    <td>${h.value}</td>
-                    <td>${h.norm}</td>
-                    <td>${h.status}</td>
-                </tr>
-            `).join('');
         }
 
         async function loadHistory() {
             try {
-                const response = await fetch(`${RULES_URL}/history`);
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    history = data.slice(0, 10).map(h => ({
-                        timestamp: new Date().toLocaleTimeString(),
-                        user_id: h.user_id,
-                        metric_type: h.metric_type,
-                        value: h.value,
-                        norm: `${h.min_normal}-${h.max_normal}`,
-                        status: h.is_out_of_range ? '?? é‚™´Æ≠•≠®•' : '?? çÆ‡¨†'
-                    }));
-                    renderHistory();
+                const r = await fetch(API.rules + "/history");
+                const history = await r.json();
+                const tbody = document.getElementById("historyBody");
+                if (history.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='4'>–ù–µ—Ç –¥–∞–Ω–Ω—ã—Ö</td></tr>";
+                } else {
+                    tbody.innerHTML = history.slice(-10).reverse().map(h => `
+                        <tr class="${h.is_out_of_range ? 'table-danger' : ''}">
+                            <td>${h.user_id}</td>
+                            <td>${h.metric_type}</td>
+                            <td>${h.value}</td>
+                            <td>${h.is_out_of_range ? "–í–Ω–µ –Ω–æ—Ä–º—ã" : "–ù–æ—Ä–º–∞"}</td>
+                        </tr>
+                    `).join("");
                 }
             } catch (e) {
-                console.log('History load error:', e);
+                console.error(e);
             }
         }
 
-        // á†Ø„·™ Ø‡® ß†£‡„ß™•
-        checkModuleStatus();
-        setInterval(checkModuleStatus, 30000);
+        async function loadAlerts() {
+            try {
+                const r = await fetch(API.alerting + "/alerts");
+                const alerts = await r.json();
+                const tbody = document.getElementById("alertsBody");
+                if (alerts.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='4'>–ù–µ—Ç —É–≤–µ–¥–æ–º–ª–µ–Ω–∏–π</td></tr>";
+                } else {
+                    tbody.innerHTML = alerts.slice(-10).reverse().map(a => `
+                        <tr>
+                            <td>${new Date(a.time).toLocaleTimeString()}</td>
+                            <td>${a.user_id}</td>
+                            <td>${a.metric_type}</td>
+                            <td>${a.msg}</td>
+                        </tr>
+                    `).join("");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        checkStatus();
+        loadHistory();
+        loadAlerts();
+        setInterval(checkStatus, 30000);
     </script>
 </body>
 </html>

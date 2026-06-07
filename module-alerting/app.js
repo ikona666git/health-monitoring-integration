@@ -1,7 +1,10 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const path = require('path');
+
 const app = express();
 
-// CORS для всех запросов
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -13,6 +16,15 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+const swaggerSpec = JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'openapi.json'), 'utf8')
+);
+const swaggerHost = process.env.SWAGGER_HOST || 'localhost:3100';
+swaggerSpec.servers = [{ url: `http://${swaggerHost}` }];
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/openapi.json', (req, res) => res.json(swaggerSpec));
 
 let alerts = [];
 
@@ -26,7 +38,7 @@ app.post('/alert', (req, res) => {
         metric_type,
         value,
         msg,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
     };
     alerts.push(alert);
     res.json({ status: 'sent', alert_id: alert.id });
@@ -40,4 +52,5 @@ app.get('/alerts', (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-app.listen(3000, () => console.log('Alerting on 3000 with CORS'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Alerting on ${PORT} ? Swagger: /docs`));

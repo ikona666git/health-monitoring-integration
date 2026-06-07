@@ -14,6 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -24,42 +29,55 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Python dependencies (ingestion)
+      - name: Restore and build .NET
         run: |
-          cd module-ingestion
-          pip install -r requirements.txt
+          dotnet restore HealthMonitoring.slnx
+          dotnet build HealthMonitoring.slnx --no-restore
+
+      - name: Run unit tests
+        run: dotnet test tests/UnitTests/UnitTests.csproj --no-build --verbosity normal
+
+      - name: Install Python dependencies (ingestion)
+        run: pip install -r module-ingestion/requirements.txt
 
       - name: Install Python dependencies (rules)
-        run: |
-          cd module-rules
-          pip install -r requirements.txt
+        run: pip install -r module-rules/requirements.txt
 
       - name: Install Node dependencies (alerting)
-        run: |
-          cd module-alerting
-          npm ci
+        run: npm install --omit=dev --prefix module-alerting
 
       - name: Docker Compose up
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait for services
-        run: sleep 10
-
-      - name: Test ingestion health
-        run: curl --fail http://localhost:5001/health
-
-      - name: Test rules health
-        run: curl --fail http://localhost:5002/health
-
-      - name: Test alerting health
-        run: curl --fail http://localhost:3000/health
-
-      - name: Integration test
         run: |
-          curl -X POST http://localhost:5001/measurements \
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:5101/health && \
+            curl -sf http://localhost:5102/health && \
+            curl -sf http://localhost:3100/health && \
+            curl -sf http://localhost:8180/ && exit 0
+            sleep 2
+          done
+          echo "Services failed to start"
+          docker compose logs
+          exit 1
+
+      - name: Integration test — full pipeline
+        run: |
+          RESPONSE=$(curl -s -X POST http://localhost:5101/measurements \
             -H "Content-Type: application/json" \
-            -d '{"user_id":"test","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T12:00:00Z"}'
+            -d '{"user_id":"ci_user","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T12:00:00Z"}')
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"status":"accepted"'
+          echo "$RESPONSE" | grep -q '"alert_triggered":true'
+          echo "$RESPONSE" | grep -q '"alert_id"'
+
+      - name: Run integration tests
+        run: dotnet test tests/IntegrationTests/IntegrationTests.csproj --verbosity normal
+
+      - name: Run E2E tests
+        run: dotnet test tests/E2ETests/E2ETests.csproj --verbosity normal
 
       - name: Docker Compose down
         if: always()
-        run: docker-compose down
+        run: docker compose down

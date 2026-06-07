@@ -2561,7 +2561,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\nikit\\.nuget\\packages\\": {}
+    "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget": {}
   },
   "project": {
     "version": "1.0.0",
@@ -2569,7 +2569,7 @@
       "projectUniqueName": "C:\\health-monitoring-integration\\tests\\IntegrationTests\\IntegrationTests.csproj",
       "projectName": "IntegrationTests",
       "projectPath": "C:\\health-monitoring-integration\\tests\\IntegrationTests\\IntegrationTests.csproj",
-      "packagesPath": "C:\\Users\\nikit\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\nikit\\AppData\\Local\\Temp\\cursor-sandbox-cache\\c2aee7e7a837de3ff643261d6f16a147\\nuget",
       "outputPath": "C:\\health-monitoring-integration\\tests\\IntegrationTests\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [

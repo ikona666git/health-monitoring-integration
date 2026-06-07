@@ -26,7 +26,8 @@ public class MeasurementProcessorTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal("user123", result["user_id"].ToString());
-        Assert.Equal(135, Convert.ToDouble(result["value"]));
+        var valueElement = (System.Text.Json.JsonElement)result["value"];
+        Assert.Equal(135, valueElement.GetDouble());
         Assert.Equal("heart_rate", result["metric_type"].ToString());
     }
 

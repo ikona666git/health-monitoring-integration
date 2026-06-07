@@ -1,0 +1,120 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Health Monitoring — Alerting API",
+    "version": "1.0.0",
+    "description": "Сервис уведомлений при отклонении показателей от нормы."
+  },
+  "servers": [{ "url": "http://localhost:3100" }],
+  "tags": [
+    { "name": "Alerts", "description": "Управление уведомлениями" },
+    { "name": "Health", "description": "Проверка состояния сервиса" }
+  ],
+  "paths": {
+    "/alert": {
+      "post": {
+        "tags": ["Alerts"],
+        "summary": "Создать уведомление",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AlertRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Уведомление создано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AlertResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alerts": {
+      "get": {
+        "tags": ["Alerts"],
+        "summary": "Список уведомлений",
+        "parameters": [{
+          "name": "user_id",
+          "in": "query",
+          "schema": { "type": "string" },
+          "description": "Фильтр по пользователю"
+        }],
+        "responses": {
+          "200": {
+            "description": "Массив уведомлений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Alert" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Сервис работает",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertRequest": {
+        "type": "object",
+        "required": ["user_id", "metric_type", "value"],
+        "properties": {
+          "user_id": { "type": "string", "example": "user123" },
+          "metric_type": { "type": "string", "example": "heart_rate" },
+          "value": { "type": "number", "example": 135 },
+          "min_normal": { "type": "number", "example": 60 },
+          "max_normal": { "type": "number", "example": 100 },
+          "deviation_percent": { "type": "number", "example": 35 }
+        }
+      },
+      "AlertResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "sent" },
+          "alert_id": { "type": "integer", "example": 1 }
+        }
+      },
+      "Alert": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "user_id": { "type": "string" },
+          "metric_type": { "type": "string" },
+          "value": { "type": "number" },
+          "msg": { "type": "string" },
+          "time": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "ok" }
+        }
+      }
+    }
+  }
+}

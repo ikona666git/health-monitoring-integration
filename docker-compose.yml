@@ -1,29 +1,70 @@
-version: '3.8'
-version: '3.8'
-
 services:
-  ingestion:
-    build: ./module-ingestion
-    ports:
-      - "5001:5001"
-    environment:
-      - RULES_ENGINE_URL=http://rules:5002
-    depends_on:
-      - rules
-    networks:
-      - health-net
-
   rules:
     build: ./module-rules
     ports:
-      - "5002:5002"
+      - "5102:5002"
     networks:
       - health-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   alerting:
     build: ./module-alerting
     ports:
-      - "3000:3000"
+      - "3100:3000"
+    environment:
+      - SWAGGER_HOST=localhost:3100
+    networks:
+      - health-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  ingestion:
+    build: ./module-ingestion
+    ports:
+      - "5101:5001"
+    environment:
+      - RULES_ENGINE_URL=http://rules:5002
+      - ALERTING_URL=http://alerting:3000
+      - SWAGGER_HOST=localhost:5101
+    depends_on:
+      rules:
+        condition: service_healthy
+      alerting:
+        condition: service_healthy
+    networks:
+      - health-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  integration:
+    build: ./IntegrationService
+    ports:
+      - "5200:8080"
+    environment:
+      - ServiceUrls__Ingestion=http://ingestion:5001
+      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      ingestion:
+        condition: service_healthy
+    networks:
+      - health-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8180:8080"
+    depends_on:
+      - ingestion
     networks:
       - health-net
 

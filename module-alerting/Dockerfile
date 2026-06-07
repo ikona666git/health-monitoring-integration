@@ -1,7 +1,7 @@
 FROM node:18-slim
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
-COPY app.js .
+RUN npm install --omit=dev
+COPY app.js openapi.json ./
 EXPOSE 3000
 CMD ["node", "app.js"]
