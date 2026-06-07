@@ -1,35 +1,35 @@
-# Health Monitoring - Integration Solution
+# Мониторинг здоровья — Интеграционное решение
 
-## Description
-System for collecting, analyzing and notifying about physiological parameters.
+## Описание
+Система мониторинга здоровья для сбора, анализа и уведомлений о физиологических показателях.
 
-## Architecture
+## Архитектура
 
-| Service | Port | Technology |
-|---------|------|-------------|
+| Сервис | Порт | Технология |
+|--------|------|------------|
 | Ingestion | 5001 | Python/Flask |
 | Rules Engine | 5002 | Python/FastAPI |
 | Alerting | 3000 | Node.js/Express |
 | Frontend | 8080 | HTML/JS/Bootstrap |
-| Integration | console | C#/.NET 10 |
+| Integration | консоль | C#/.NET 10 |
 
-## Quick Start
+## Быстрый запуск
 
-### 1. Run modules (4 windows)
+### 1. Запуск модулей (4 окна)
 
 ```bash
-# Window 1: Ingestion
+# Окно 1: Ingestion
 cd module-ingestion
 python app.py
 
-# Window 2: Rules Engine
+# Окно 2: Rules Engine
 cd module-rules
 python -m uvicorn app:app --host 0.0.0.0 --port 5002
 
-# Window 3: Alerting
+# Окно 3: Alerting
 cd module-alerting
 node app.js
 
-# Window 4: Frontend
+# Окно 4: Frontend
 cd frontend
 python -m http.server 8080
