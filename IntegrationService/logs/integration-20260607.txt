@@ -145,3 +145,89 @@ Error Number: 2, State: 0, Class: 20
 2026-06-07 23:36:57.315 +03:00 [INF] ШАГ 3: Отправка уведомления...
 2026-06-07 23:36:57.329 +03:00 [INF] Уведомление отправлено за 13 мс
 2026-06-07 23:36:57.330 +03:00 [INF] === ОБЩЕЕ ВРЕМЯ: 2140 мс ===
+2026-06-07 23:45:41.362 +03:00 [INF] === ОПТИМИЗИРОВАННЫЙ ЗАПУСК ===
+2026-06-07 23:45:41.398 +03:00 [INF] Отправка измерения: {"user_id":"user123","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T20:45:41.3980194Z"}
+2026-06-07 23:45:41.423 +03:00 [INF] ШАГ 1+2: Параллельный вызов Ingestion и Rules Engine...
+2026-06-07 23:45:43.494 +03:00 [INF] Ingestion + Rules выполнены за 2070 мс
+2026-06-07 23:45:43.496 +03:00 [INF] Ingestion ответ: {
+  "data": {
+    "metric_type": "heart_rate",
+    "timestamp": "2026-06-07T20:45:41.3980194Z",
+    "user_id": "user123",
+    "value": 135
+  },
+  "status": "accepted"
+}
+
+2026-06-07 23:45:43.497 +03:00 [INF] Rules Engine ответ: {"user_id":"user123","metric_type":"heart_rate","value":135.0,"min_normal":60,"max_normal":100,"is_out_of_range":true,"deviation_percent":35.0,"alert_triggered":true,"cached":"нет"}
+2026-06-07 23:45:43.498 +03:00 [INF] ШАГ 3: Отправка уведомления...
+2026-06-07 23:45:43.501 +03:00 [INF] Уведомление отправлено за 3 мс
+2026-06-07 23:45:43.502 +03:00 [INF] === ОБЩЕЕ ВРЕМЯ: 2105 мс ===
+2026-06-07 23:46:04.536 +03:00 [INF] === ОПТИМИЗИРОВАННЫЙ ЗАПУСК ===
+2026-06-07 23:46:04.573 +03:00 [INF] Отправка измерения: {"user_id":"user123","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T20:46:04.5724382Z"}
+2026-06-07 23:46:04.604 +03:00 [INF] ШАГ 1+2: Параллельный вызов Ingestion и Rules Engine...
+2026-06-07 23:46:06.686 +03:00 [INF] Ingestion + Rules выполнены за 2081 мс
+2026-06-07 23:46:06.688 +03:00 [INF] Ingestion ответ: {
+  "data": {
+    "metric_type": "heart_rate",
+    "timestamp": "2026-06-07T20:46:04.5724382Z",
+    "user_id": "user123",
+    "value": 135
+  },
+  "status": "accepted"
+}
+
+2026-06-07 23:46:06.689 +03:00 [INF] Rules Engine ответ: {"user_id":"user123","metric_type":"heart_rate","value":135.0,"min_normal":60,"max_normal":100,"is_out_of_range":true,"deviation_percent":35.0,"alert_triggered":true,"cached":"да"}
+2026-06-07 23:46:06.690 +03:00 [INF] ШАГ 3: Отправка уведомления...
+2026-06-07 23:46:06.693 +03:00 [INF] Уведомление отправлено за 3 мс
+2026-06-07 23:46:06.694 +03:00 [INF] === ОБЩЕЕ ВРЕМЯ: 2124 мс ===
+2026-06-07 23:46:46.422 +03:00 [INF] === ОПТИМИЗИРОВАННЫЙ ЗАПУСК ===
+2026-06-07 23:46:46.460 +03:00 [INF] Отправка измерения: {"user_id":"user123","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T20:46:46.4599649Z"}
+2026-06-07 23:46:46.488 +03:00 [INF] ШАГ 1+2: Параллельный вызов Ingestion и Rules Engine...
+2026-06-07 23:46:48.577 +03:00 [INF] Ingestion + Rules выполнены за 2088 мс
+2026-06-07 23:46:48.579 +03:00 [INF] Ingestion ответ: {
+  "data": {
+    "metric_type": "heart_rate",
+    "timestamp": "2026-06-07T20:46:46.4599649Z",
+    "user_id": "user123",
+    "value": 135
+  },
+  "status": "accepted"
+}
+
+2026-06-07 23:46:48.580 +03:00 [INF] Rules Engine ответ: {"user_id":"user123","metric_type":"heart_rate","value":135.0,"min_normal":60,"max_normal":100,"is_out_of_range":true,"deviation_percent":35.0,"alert_triggered":true,"cached":"нет"}
+2026-06-07 23:46:48.580 +03:00 [INF] ШАГ 3: Отправка уведомления...
+2026-06-07 23:46:52.658 +03:00 [ERR] Ошибка: Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение. (localhost:3000)
+System.Net.Http.HttpRequestException: Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение. (localhost:3000)
+ ---> System.Net.Sockets.SocketException (10061): Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Program.<Main>$(String[] args) in C:\health-monitoring-integration\IntegrationService\Program.cs:line 53
+2026-06-07 23:49:04.566 +03:00 [INF] === ОПТИМИЗИРОВАННЫЙ ЗАПУСК ===
+2026-06-07 23:49:04.604 +03:00 [INF] Отправка измерения: {"user_id":"user123","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T20:49:04.6036384Z"}
+2026-06-07 23:49:04.631 +03:00 [INF] ШАГ 1+2: Параллельный вызов Ingestion и Rules Engine...
+2026-06-07 23:49:06.718 +03:00 [INF] Ingestion + Rules выполнены за 2085 мс
+2026-06-07 23:49:06.720 +03:00 [INF] Ingestion ответ: {
+  "data": {
+    "metric_type": "heart_rate",
+    "timestamp": "2026-06-07T20:49:04.6036384Z",
+    "user_id": "user123",
+    "value": 135
+  },
+  "status": "accepted"
+}
+
+2026-06-07 23:49:06.720 +03:00 [INF] Rules Engine ответ: {"user_id":"user123","metric_type":"heart_rate","value":135.0,"min_normal":60,"max_normal":100,"is_out_of_range":true,"deviation_percent":35.0,"alert_triggered":true,"cached":"да"}
+2026-06-07 23:49:06.721 +03:00 [INF] ШАГ 3: Отправка уведомления...
+2026-06-07 23:49:06.737 +03:00 [INF] Уведомление отправлено за 16 мс
+2026-06-07 23:49:06.738 +03:00 [INF] === ОБЩЕЕ ВРЕМЯ: 2136 мс ===
