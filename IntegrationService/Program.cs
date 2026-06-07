@@ -1,4 +1,4 @@
-using System.Text;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Serilog;
@@ -9,8 +9,9 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/integration-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-Log.Information("=== áÄèìëä àçíÖÉêÄñàéççéÉé ëÖêÇàëÄ ===");
+Log.Information("=== –û–ü–¢–ò–ú–ò–ó–ò–†–û–í–ê–ù–ù–´–ô –ó–ê–ü–£–°–ö ===");
 
+var stopwatch = Stopwatch.StartNew();
 var httpClient = new HttpClient();
 
 try
@@ -23,41 +24,49 @@ try
         timestamp = DateTime.UtcNow.ToString("o")
     };
 
-    Log.Information("é‚Ø‡†¢™† ®ß¨•‡•≠®Ô: {@Measurement}", measurement);
+    Log.Information("–û—Ç–ø—Ä–∞–≤–∫–∞ –∏–∑–º–µ—Ä–µ–Ω–∏—è: {@Measurement}", measurement);
     var json = JsonSerializer.Serialize(measurement);
     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-    // ò†£ 1: Ingestion
-    Log.Information("òÄÉ 1: Ingestion...");
-    var ingestionResponse = await httpClient.PostAsync("http://localhost:5001/measurements", content);
-    var ingestionResult = await ingestionResponse.Content.ReadAsStringAsync();
-    Log.Information("Ingestion Æ‚¢•‚: {Result}", ingestionResult);
+    // –ü–ê–†–ê–õ–õ–ï–õ–¨–ù–´–ï –í–´–ó–û–í–´ (Ingestion + Rules Engine)
+    Log.Information("–®–ê–ì 1+2: –ü–∞—Ä–∞–ª–ª–µ–ª—å–Ω—ã–π –≤—ã–∑–æ–≤ Ingestion –∏ Rules Engine...");
+    var sw = Stopwatch.StartNew();
+    
+    var ingestionTask = httpClient.PostAsync("http://localhost:5001/measurements", content);
+    var rulesTask = httpClient.PostAsync("http://localhost:5002/check", content);
+    
+    await Task.WhenAll(ingestionTask, rulesTask);
+    sw.Stop();
+    Log.Information("Ingestion + Rules –≤—ã–ø–æ–ª–Ω–µ–Ω—ã –∑–∞ {Elapsed} –º—Å", sw.ElapsedMilliseconds);
 
-    // ò†£ 2: Rules Engine
-    Log.Information("òÄÉ 2: Rules Engine...");
-    var rulesResponse = await httpClient.PostAsync("http://localhost:5002/check", content);
-    var rulesResult = await rulesResponse.Content.ReadAsStringAsync();
-    Log.Information("Rules Engine Æ‚¢•‚: {Result}", rulesResult);
+    var ingestionResult = await ingestionTask.Result.Content.ReadAsStringAsync();
+    var rulesResult = await rulesTask.Result.Content.ReadAsStringAsync();
+    
+    Log.Information("Ingestion –æ—Ç–≤–µ—Ç: {Result}", ingestionResult);
+    Log.Information("Rules Engine –æ—Ç–≤–µ—Ç: {Result}", rulesResult);
 
-    // ò†£ 3: Alerting
+    // –®–ê–ì 3: –£–≤–µ–¥–æ–º–ª–µ–Ω–∏–µ
     if (rulesResult.Contains("true"))
     {
-        Log.Warning("òÄÉ 3: é‚Ø‡†¢™† „¢•§Æ¨´•≠®Ô...");
+        sw.Restart();
+        Log.Information("–®–ê–ì 3: –û—Ç–ø—Ä–∞–≤–∫–∞ —É–≤–µ–¥–æ–º–ª–µ–Ω–∏—è...");
         await httpClient.PostAsync("http://localhost:3000/alert", content);
-        Log.Information("ì¢•§Æ¨´•≠®• Æ‚Ø‡†¢´•≠Æ");
+        sw.Stop();
+        Log.Information("–£–≤–µ–¥–æ–º–ª–µ–Ω–∏–µ –æ—Ç–ø—Ä–∞–≤–ª–µ–Ω–æ –∑–∞ {Elapsed} –º—Å", sw.ElapsedMilliseconds);
     }
 
-    Log.Information("=== ëñÖçÄêàâ ìëèÖòçé áÄÇÖêòç ===");
+    stopwatch.Stop();
+    Log.Information("=== –û–ë–©–ï–ï –í–†–ï–ú–Ø: {Elapsed} –º—Å ===", stopwatch.ElapsedMilliseconds);
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "éË®°™†: {Message}", ex.Message);
+    Log.Error(ex, "–û—à–∏–±–∫–∞: {Message}", ex.Message);
 }
 finally
 {
     Log.CloseAndFlush();
 }
 
-Console.WriteLine("ãÆ£® ¢ Ø†Ø™• logs/");
-Console.WriteLine("ç†¶¨®‚• Enter...");
+Console.WriteLine("–õ–æ–≥–∏ –≤ –ø–∞–ø–∫–µ logs/");
+Console.WriteLine("–ù–∞–∂–º–∏—Ç–µ Enter...");
 Console.ReadLine();
