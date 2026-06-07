@@ -1,0 +1,65 @@
+name: CI / Build & Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Python dependencies (ingestion)
+        run: |
+          cd module-ingestion
+          pip install -r requirements.txt
+
+      - name: Install Python dependencies (rules)
+        run: |
+          cd module-rules
+          pip install -r requirements.txt
+
+      - name: Install Node dependencies (alerting)
+        run: |
+          cd module-alerting
+          npm ci
+
+      - name: Docker Compose up
+        run: docker-compose up -d --build
+
+      - name: Wait for services
+        run: sleep 10
+
+      - name: Test ingestion health
+        run: curl --fail http://localhost:5001/health
+
+      - name: Test rules health
+        run: curl --fail http://localhost:5002/health
+
+      - name: Test alerting health
+        run: curl --fail http://localhost:3000/health
+
+      - name: Integration test
+        run: |
+          curl -X POST http://localhost:5001/measurements \
+            -H "Content-Type: application/json" \
+            -d '{"user_id":"test","metric_type":"heart_rate","value":135,"timestamp":"2026-06-07T12:00:00Z"}'
+
+      - name: Docker Compose down
+        if: always()
+        run: docker-compose down

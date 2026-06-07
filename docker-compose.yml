@@ -1,0 +1,32 @@
+version: '3.8'
+version: '3.8'
+
+services:
+  ingestion:
+    build: ./module-ingestion
+    ports:
+      - "5001:5001"
+    environment:
+      - RULES_ENGINE_URL=http://rules:5002
+    depends_on:
+      - rules
+    networks:
+      - health-net
+
+  rules:
+    build: ./module-rules
+    ports:
+      - "5002:5002"
+    networks:
+      - health-net
+
+  alerting:
+    build: ./module-alerting
+    ports:
+      - "3000:3000"
+    networks:
+      - health-net
+
+networks:
+  health-net:
+    driver: bridge
