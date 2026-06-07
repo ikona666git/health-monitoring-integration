@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг здоровья</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .status-card { border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .status-ok { background-color: #d4edda; border-left: 5px solid #28a745; }
+        .status-warning { background-color: #fff3cd; border-left: 5px solid #ffc107; }
+        .status-critical { background-color: #f8d7da; border-left: 5px solid #dc3545; }
+        .spinner { display: none; width: 20px; height: 20px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">?? Мониторинг здоровья</h1>
+        
+        <!-- Статус модулей -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card" id="ingestion-status">
+                    <div class="card-body text-center">
+                        <h5>?? Ingestion</h5>
+                        <span class="badge bg-secondary">Проверка...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" id="rules-status">
+                    <div class="card-body text-center">
+                        <h5>?? Rules Engine</h5>
+                        <span class="badge bg-secondary">Проверка...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" id="alerting-status">
+                    <div class="card-body text-center">
+                        <h5>?? Alerting</h5>
+                        <span class="badge bg-secondary">Проверка...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма ввода показателя -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">? Добавить новый показатель</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">ID пользователя</label>
+                        <input type="text" class="form-control" id="userId" value="user123">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Тип показателя</label>
+                        <select class="form-select" id="metricType">
+                            <option value="heart_rate">Пульс</option>
+                            <option value="blood_pressure">Давление</option>
+                            <option value="glucose">Глюкоза</option>
+                            <option value="steps">Шаги</option>
+                            <option value="sleep_hours">Сон (часы)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Значение</label>
+                        <input type="number" class="form-control" id="value" value="135">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-primary w-100" onclick="sendMeasurement()">
+                            Отправить
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="spinner-border spinner text-primary" id="loadingSpinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Результат интеграции -->
+        <div class="card mb-4" id="resultCard" style="display: none;">
+            <div class="card-header">
+                <h5 class="mb-0">?? Результат интеграции</h5>
+            </div>
+            <div class="card-body" id="resultBody">
+            </div>
+        </div>
+
+        <!-- История последних измерений -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">?? История показателей</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="historyTable">
+                        <thead>
+                            <tr><th>Время</th><th>Пользователь</th><th>Показатель</th><th>Значение</th><th>Норма</th><th>Статус</th></tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr><td colspan="6" class="text-center">Нет данных</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="loadHistory()">Обновить историю</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Базовые URL модулей
+        const INGESTION_URL = 'http://localhost:5001';
+        const RULES_URL = 'http://localhost:5002';
+        const ALERTING_URL = 'http://localhost:3000';
+
+        // Проверка статуса модулей
+        async function checkModuleStatus() {
+            const modules = [
+                { name: 'ingestion', url: `${INGESTION_URL}/health`, element: 'ingestion-status' },
+                { name: 'rules', url: `${RULES_URL}/health`, element: 'rules-status' },
+                { name: 'alerting', url: `${ALERTING_URL}/health`, element: 'alerting-status' }
+            ];
+
+            for (const mod of modules) {
+                try {
+                    const response = await fetch(mod.url);
+                    if (response.ok) {
+                        document.querySelector(`#${mod.element} .badge`).className = 'badge bg-success';
+                        document.querySelector(`#${mod.element} .badge`).textContent = '? Работает';
+                    } else {
+                        throw new Error('Not OK');
+                    }
+                } catch (error) {
+                    document.querySelector(`#${mod.element} .badge`).className = 'badge bg-danger';
+                    document.querySelector(`#${mod.element} .badge`).textContent = '? Недоступен';
+                }
+            }
+        }
+
+        // Отправка измерения
+        async function sendMeasurement() {
+            const userId = document.getElementById('userId').value;
+            const metricType = document.getElementById('metricType').value;
+            const value = parseFloat(document.getElementById('value').value);
+            
+            const measurement = {
+                user_id: userId,
+                metric_type: metricType,
+                value: value,
+                timestamp: new Date().toISOString(),
+                source: 'web_ui'
+            };
+
+            // Показываем спиннер
+            document.getElementById('loadingSpinner').style.display = 'inline-block';
+            document.getElementById('resultCard').style.display = 'none';
+
+            try {
+                // ШАГ 1: Отправка в Ingestion
+                const ingestionResponse = await fetch(`${INGESTION_URL}/measurements`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(measurement)
+                });
+                const ingestionResult = await ingestionResponse.json();
+
+                // ШАГ 2: Проверка норм в Rules Engine
+                const rulesResponse = await fetch(`${RULES_URL}/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(measurement)
+                });
+                const rulesResult = await rulesResponse.json();
+
+                // ШАГ 3: Уведомление (если отклонение)
+                let alertResult = null;
+                if (rulesResult.is_out_of_range) {
+                    const alertResponse = await fetch(`${ALERTING_URL}/alert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(rulesResult)
+                    });
+                    alertResult = await alertResponse.json();
+                }
+
+                // Отображение результата
+                displayResult(measurement, rulesResult, alertResult);
+                
+                // Добавляем в историю
+                addToHistory(measurement, rulesResult);
+                
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        // Отображение результата
+        function displayResult(measurement, rulesResult, alertResult) {
+            const resultCard = document.getElementById('resultCard');
+            const resultBody = document.getElementById('resultBody');
+            
+            const isOutOfRange = rulesResult.is_out_of_range;
+            const statusClass = isOutOfRange ? 'status-critical' : 'status-ok';
+            const statusText = isOutOfRange ? '?? ВНЕ НОРМЫ' : '? В НОРМЕ';
+            
+            let alertHtml = '';
+            if (alertResult) {
+                alertHtml = `<div class="alert alert-warning mt-3">
+                    ?? <strong>Уведомление отправлено!</strong> (Alert ID: ${alertResult.alert_id || '?'})
+                </div>`;
+            }
+            
+            resultBody.innerHTML = `
+                <div class="status-card ${statusClass}">
+                    <h4>${statusText}</h4>
+                    <p><strong>Пользователь:</strong> ${measurement.user_id}</p>
+                    <p><strong>Показатель:</strong> ${measurement.metric_type} = ${measurement.value}</p>
+                    <p><strong>Норма:</strong> ${rulesResult.min_normal} - ${rulesResult.max_normal}</p>
+                    ${rulesResult.deviation_percent ? `<p><strong>Отклонение:</strong> ${rulesResult.deviation_percent}%</p>` : ''}
+                    ${alertHtml}
+                </div>
+            `;
+            
+            resultCard.style.display = 'block';
+        }
+
+        function displayError(error) {
+            const resultCard = document.getElementById('resultCard');
+            const resultBody = document.getElementById('resultBody');
+            resultBody.innerHTML = `<div class="alert alert-danger">? Ошибка: ${error}</div>`;
+            resultCard.style.display = 'block';
+        }
+
+        // История (локальная)
+        let history = [];
+        function addToHistory(measurement, rulesResult) {
+            history.unshift({
+                timestamp: new Date().toLocaleTimeString(),
+                user_id: measurement.user_id,
+                metric_type: measurement.metric_type,
+                value: measurement.value,
+                norm: `${rulesResult.min_normal}-${rulesResult.max_normal}`,
+                status: rulesResult.is_out_of_range ? '?? Отклонение' : '?? Норма'
+            });
+            if (history.length > 10) history.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyBody');
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Нет данных</td></tr>';
+                return;
+            }
+            tbody.innerHTML = history.map(h => `
+                <tr>
+                    <td>${h.timestamp}</td>
+                    <td>${h.user_id}</td>
+                    <td>${h.metric_type}</td>
+                    <td>${h.value}</td>
+                    <td>${h.norm}</td>
+                    <td>${h.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${RULES_URL}/history`);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    history = data.slice(0, 10).map(h => ({
+                        timestamp: new Date().toLocaleTimeString(),
+                        user_id: h.user_id,
+                        metric_type: h.metric_type,
+                        value: h.value,
+                        norm: `${h.min_normal}-${h.max_normal}`,
+                        status: h.is_out_of_range ? '?? Отклонение' : '?? Норма'
+                    }));
+                    renderHistory();
+                }
+            } catch (e) {
+                console.log('History load error:', e);
+            }
+        }
+
+        // Запуск при загрузке
+        checkModuleStatus();
+        setInterval(checkModuleStatus, 30000);
+    </script>
+</body>
+</html>

@@ -1,68 +1,58 @@
-using IntegrationService.Data;
-using IntegrationService.Data;
-using IntegrationService.Mapping;
-using IntegrationService.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using System.Text;
+using System.Text.Json;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
-    .WriteTo.File("logs/integration-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
+Log.Information("Запуск SAGA сценария...");
+
+var httpClient = new HttpClient();
 
 try
 {
-    var services = new ServiceCollection();
-    
-    services.AddLogging(builder =>
+    var measurement = new
     {
-        builder.ClearProviders();
-        builder.AddSerilog(dispose: true);
-    });
-    
-    // Добавляем DbContext для SQL Server
-    services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer("Server=localhost;Database=HealthMonitoringDb;Trusted_Connection=True;TrustServerCertificate=True;"));
-    
-    services.AddAutoMapper(typeof(IntegrationProfile));
-    services.AddHttpClient<IHealthIntegrationService, HealthIntegrationService>();
-    services.AddScoped<IHealthIntegrationService, HealthIntegrationService>();
-
-    var provider = services.BuildServiceProvider();
-    
-    // Создаём базу данных, если её нет
-    using (var scope = provider.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        dbContext.Database.EnsureCreated();
-        Log.Information("База данных проверена/создана");
-    }
-    
-    var integrator = provider.GetRequiredService<IHealthIntegrationService>();
-
-    Log.Information("=== Тестирование интеграционного сервиса ===");
-
-    var testMeasurement = new IntegrationService.Models.Measurement
-    {
-        UserId = "user123",
-        MetricType = "heart_rate",
-        Value = 135,
-        Timestamp = DateTime.UtcNow.ToString("o"),
-        Source = "integration_test"
+        user_id = "user123",
+        metric_type = "heart_rate",
+        value = 135,
+        timestamp = DateTime.UtcNow.ToString("o"),
+        source = "saga_test"
     };
 
-    var result = await integrator.ProcessMeasurementAsync(testMeasurement);
+    // Шаг 1: Отправка в Ingestion (порт 5001)
+    Log.Information("ШАГ 1: Отправка в Ingestion...");
+    var ingestionJson = JsonSerializer.Serialize(measurement);
+    var ingestionContent = new StringContent(ingestionJson, Encoding.UTF8, "application/json");
+    var ingestionResponse = await httpClient.PostAsync("http://localhost:5001/measurements", ingestionContent);
+    var ingestionResult = await ingestionResponse.Content.ReadAsStringAsync();
+    Log.Information("Ответ Ingestion: {0}", ingestionResult);
 
-    Log.Information("Результат: {@Result}", result);
+    // Шаг 2: Проверка норм в Rules (порт 5002)
+    Log.Information("ШАГ 2: Проверка норм в Rules Engine...");
+    var rulesContent = new StringContent(ingestionJson, Encoding.UTF8, "application/json");
+    var rulesResponse = await httpClient.PostAsync("http://localhost:5002/check", rulesContent);
+    var rulesResult = await rulesResponse.Content.ReadAsStringAsync();
+    Log.Information("Ответ Rules Engine: {0}", rulesResult);
+
+    // Шаг 3: Уведомление в Alerting (порт 3000)
+    if (rulesResult.Contains("out_of_range") || rulesResult.Contains("true"))
+    {
+        Log.Warning("ШАГ 3: Отправка уведомления...");
+        var alertContent = new StringContent(rulesResult, Encoding.UTF8, "application/json");
+        await httpClient.PostAsync("http://localhost:3000/alert", alertContent);
+        Log.Information("Уведомление отправлено!");
+    }
+
+    Log.Information("=== СЦЕНАРИЙ УСПЕШНО ЗАВЕРШЁН ===");
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "Ошибка при выполнении интеграционного сервиса");
+    Log.Error(ex, "Ошибка при выполнении сценария");
 }
-finally
-{
-    Log.CloseAndFlush();
-}
+
+Log.CloseAndFlush();
+Console.WriteLine("Нажмите Enter для выхода...");
+Console.ReadLine();
