@@ -13,14 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-norms_db = {}
 history = []
-
-DEFAULT = {
-    'heart_rate': {'min': 60, 'max': 100},
-    'glucose': {'min': 70, 'max': 140},
-    'steps': {'min': 0, 'max': 25000}
-}
 
 class Measurement(BaseModel):
     id: Optional[int] = None
@@ -31,27 +24,31 @@ class Measurement(BaseModel):
 
 @app.post('/check')
 def check(m: Measurement):
-    norms = norms_db.get(m.user_id, {}).get(m.metric_type, DEFAULT.get(m.metric_type, {'min': 0, 'max': 999999}))
-    out = m.value < norms['min'] or m.value > norms['max']
+    min_norm = 60
+    max_norm = 100
+    out = m.value < min_norm or m.value > max_norm
     dev = None
     if out:
-        if m.value < norms['min']:
-            dev = round(((norms['min'] - m.value) / norms['min']) * 100, 2)
+        if m.value < min_norm:
+            dev = round(((min_norm - m.value) / min_norm) * 100, 2)
         else:
-            dev = round(((m.value - norms['max']) / norms['max']) * 100, 2)
+            dev = round(((m.value - max_norm) / max_norm) * 100, 2)
     res = {
-        'measurement_id': m.id,
         'user_id': m.user_id,
         'metric_type': m.metric_type,
         'value': m.value,
-        'min_normal': norms['min'],
-        'max_normal': norms['max'],
+        'min_normal': min_norm,
+        'max_normal': max_norm,
         'is_out_of_range': out,
         'deviation_percent': dev,
         'alert_triggered': out
     }
     history.append(res)
     return res
+
+@app.get('/history')
+def get_history():
+    return history
 
 @app.get('/health')
 def health():
